@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grant Submission Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { margin: 0 auto; max-width: 600px; }
+        label { display: block; margin-top: 10px; }
+        input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; }
+        button { margin-top: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+
+    <h1>Grant Submission Form</h1>
+    <form id="grantForm">
+        <!-- Submitter Information -->
+        <h3>Submitter Information</h3>
+        <label for="submitterName">Submitter Name:</label>
+        <input type="text" id="submitterName" name="submitterName" required><br>
+
+        <label for="reportDate">Date of Report Writing:</label>
+        <input type="date" id="reportDate" name="reportDate" required><br>
+
+        <label for="submissionDate">Date of Submission:</label>
+        <input type="date" id="submissionDate" name="submissionDate" required><br>
+
+        <label for="contactName">Grant Contact Name:</label>
+        <input type="text" id="contactName" name="contactName" required><br>
+
+        <label for="contactEmail">Contact Email:</label>
+        <input type="email" id="contactEmail" name="contactEmail" required><br>
+
+        <label for="contactPhone">Contact Phone:</label>
+        <input type="tel" id="contactPhone" name="contactPhone" required><br>
+
+        <!-- Grant Details -->
+        <h3>Grant Details</h3>
+        <label for="grantType">Grant Type:</label>
+        <select id="grantType" name="grantType" required>
+            <option value="State Grant">State Grant</option>
+            <option value="Federal Grant">Federal Grant</option>
+            <option value="ADA Qualifying Grant">ADA Qualifying Grant</option>
+            <option value="Private Grant">Private Grant</option>
+            <option value="Non-Profit Grant">Non-Profit Grant</option>
+        </select><br>
+
+        <label for="grantName">Grant Name:</label>
+        <input type="text" id="grantName" name="grantName" required><br>
+
+        <label for="stipulations">Stipulations:</label>
+        <textarea id="stipulations" name="stipulations" rows="3"></textarea><br>
+
+        <label for="grantBenefits">Grant Benefits:</label>
+        <textarea id="grantBenefits" name="grantBenefits" rows="3" required></textarea><br>
+
+        <label for="grantValue">Grant Value ($):</label>
+        <input type="number" id="grantValue" name="grantValue" step="0.01" required><br>
+
+        <label for="eligibility">Eligibility Criteria:</label>
+        <textarea id="eligibility" name="eligibility" rows="3"></textarea><br>
+
+        <label for="files">Upload Supporting Documents (optional):</label>
+        <input type="file" id="files" name="files"><br><br>
+
+        <button type="submit">Submit Grant</button>
+    </form>
+
+    <script>
+        document.getElementById('grantForm').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent the form from submitting normally
+
+            // Validate the form
+            const formData = new FormData(e.target);
+            const data = {
+                submitterName: formData.get('submitterName'),
+                reportDate: formData.get('reportDate'),
+                submissionDate: formData.get('submissionDate'),
+                contactName: formData.get('contactName'),
+                contactEmail: formData.get('contactEmail'),
+                contactPhone: formData.get('contactPhone'),
+                grantType: formData.get('grantType'),
+                grantName: formData.get('grantName'),
+                stipulations: formData.get('stipulations'),
+                grantBenefits: formData.get('grantBenefits'),
+                grantValue: formData.get('grantValue'),
+                eligibility: formData.get('eligibility'),
+                files: formData.get('files') // File data can be processed later in backend
+            };
+
+            // Validate required fields
+            if (!data.submitterName || !data.grantName || !data.grantBenefits || !data.grantValue) {
+                alert('Please fill out all required fields!');
+                return;
+            }
+
+            // Send form data to GitHub (create an issue)
+            fetch('https://api.github.com/repos/YOUR_GITHUB_USERNAME/grant-submissions/issues', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer YOUR_GITHUB_TOKEN',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: `${data.grantName} Submission from ${data.submitterName}`,
+                    body: `
+                    **Submitter Name:** ${data.submitterName}
+                    **Date of Report Writing:** ${data.reportDate}
+                    **Date of Submission:** ${data.submissionDate}
+                    **Contact Name:** ${data.contactName}
+                    **Contact Email:** ${data.contactEmail}
+                    **Contact Phone:** ${data.contactPhone}
+                    **Grant Type:** ${data.grantType}
+                    **Grant Name:** ${data.grantName}
+                    **Stipulations:** ${data.stipulations}
+                    **Grant Benefits:** ${data.grantBenefits}
+                    **Grant Value:** $${data.grantValue}
+                    **Eligibility Criteria:** ${data.eligibility}
+                    `,
+                    labels: ['grant-submission']
+                })
+            }).then(response => {
+                if (response.ok) {
+                    alert('Grant Submission Successful');
+                } else {
+                    alert('Failed to Submit Grant');
+                }
+            }).catch(error => {
+                alert('An error occurred: ' + error.message);
+            });
+        });
+    </script>
+</body>
+</html>
